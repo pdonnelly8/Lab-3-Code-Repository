@@ -54,9 +54,14 @@ public class RangeTest extends TestCase {
 	//error
 	@Test
 	public void testLowerBoundWithBigNumberFirst() {
+		try {
 		Range r = new Range(2, 1);
-		assertEquals("Input values: 2 and 1. Should return 1.", 1.0, r.getLowerBound(), 0.000000001d);
+		fail("No exception thrown");
 	}
+		catch(IllegalArgumentException e) {
+			assertTrue("Incorrect error thrown, should be Illegal Arugment Exception", e.getClass().equals(IllegalArgumentException.class));
+		}
+		}
 	
 	//error
 //	@Test
@@ -89,9 +94,14 @@ public class RangeTest extends TestCase {
 	// error- won't compile
 	@Test
 	public void testUpperBoundWithBigNumberFirst() {
+		try {
 		Range r = new Range(2, 1);
-		assertEquals("Input values: 2 and 1. Should return 2.", 2.0, r.getUpperBound(), 0.000000001d);
+		fail("No exception thrown");
 	}
+		catch(IllegalArgumentException e) {
+			assertTrue("Incorrect error thrown, should be Illegal Arugment Exception", e.getClass().equals(IllegalArgumentException.class));
+		}
+		}
 
 	// error- wont compile
 //	@Test
