@@ -172,6 +172,13 @@ public class RangeTest extends TestCase {
 		Range r = new Range(1, 2);
 		assertEquals("Range: 1, 2. Constraint: 3. Should return 2.", 2.0, r.constrain(3));
 	}
+	
+	@Test
+	public void testConstrainInputLessThanRange() {
+		Range r = new Range(2, 5);
+		assertEquals("Range: 2, 5. Constraint: 1. Should return 2.", 2.0, r.constrain(1));
+				
+	}
 
 
 										// Test Get Length
@@ -181,6 +188,7 @@ public class RangeTest extends TestCase {
 		assertEquals("Input values: 1 and 2. Should return 1", 1.0, r.getLength(), 0.000000001d);
 	}
 	
+										// Test Hash code
 	@Test
 	public void testHashCodeReturnsCorrectType() {
 		Range r = new Range(1, 2);
@@ -188,6 +196,8 @@ public class RangeTest extends TestCase {
 		assertEquals("Incorrect Type returned - should be int", hash, r.hashCode());
 	}
 	
+	
+										// Test to string
 	@Test
 	public void testToStringReturnsCorrectType() {
 		Range r = new Range(1, 2);
@@ -257,4 +267,37 @@ public class RangeTest extends TestCase {
 		assertFalse("Input Values: 1 and 4 - Lower 0 and Upper 5. Should return false", r.intersects(0,0));
 	}
 
+	
+											// Test Combine
+	@Test 
+	public void testCombineTwoValidRanges() { 
+		Range r1 = new Range(1, 2);
+	 	Range r2 = new Range(3, 6);
+	 	Range finalrange = new Range(1,6);
+	 	assertEquals("Input values: 1, 2 and 3, 6. Should return 1-6.", finalrange, Range.combine(r1, r2)); 
+	}
+	 
+
+	@Test
+	public void testCombineRangeTwoNull() {
+		Range r1 = new Range(1, 2);
+		Range r2 = null;
+		assertEquals("Input values: 1, 2 and null. Should return error.", null, Range.combine(r1, r2));
+	}
+	
+
+	@Test
+	public void testCombineRangeOneNull() {
+		Range r1 = null;
+		Range r2 = new Range(3,6);
+		assertEquals("Input values: null and 3, 6. Should return error.", r2, Range.combine(r1, r2));
+	}
+
+	@Test
+	public void testCombineBothRangeNull() {
+		Range r1 = null;
+		Range r2 = null;
+		assertEquals("Input values: null and null. Should return error.", null, Range.combine(r1, r2));
+	}
+	
 }
