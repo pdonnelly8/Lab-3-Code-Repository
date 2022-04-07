@@ -203,7 +203,36 @@ public class RangeTest extends TestCase {
 		Range r = new Range(1, 2);
 		assertEquals("Incorrect Type returned - Should be string", String.class, r.toString().getClass());
 	}
+	
+	@Test 
+	public void testCombineTwoValidRanges() { 
+		Range r1 = new Range(1, 2);
+	 	Range r2 = new Range(3, 6);
+	 	Range finalrange = new Range(1,6);
+	 	assertEquals("Input values: 1, 2 and 3, 6. Should return 1-6.", finalrange, Range.combine(r1, r2)); 
+	}
+	
+	@Test
+	public void testCombineRangeTwoNull() {
+		Range r1 = new Range(1, 2);
+		Range r2 = null;
+		assertEquals("Input values: 1, 2 and null. Should return error.", null, Range.combine(r1, r2));
+	}
+	
 
+	@Test
+	public void testCombineRangeOneNull() {
+		Range r1 = null;
+		Range r2 = new Range(3,6);
+		assertEquals("Input values: null and 3, 6. Should return error.", r2, Range.combine(r1, r2));
+	}
+
+	@Test
+	public void testCombineBothRangeNull() {
+		Range r1 = null;
+		Range r2 = null;
+		assertEquals("Input values: null and null. Should return error.", null, Range.combine(r1, r2));
+	}
 	//error- won't compile
 //	@Test
 //	public void testGetLengthNullAsFirst() {
@@ -221,8 +250,13 @@ public class RangeTest extends TestCase {
 	//error- won't compile
 	@Test
 	public void testGetLengthWithBiggerNumberFirst() {
-		Range r = new Range(2, 1);
-		assertEquals("Input values: 2 and 1. Should return error", 1.0, r.getLength(), 0.000000001d);
+		try {
+			Range r = new Range(2, 1);
+			r.getLength();
+			fail("No Exception thrown. Should throw IllegalArgumentException");
+		} catch (Exception e) {
+			assertTrue("Incorrect Exception Type Thrown", e.getClass().equals(IllegalArgumentException.class));
+		}
 	}
 
 	@Test
@@ -266,38 +300,80 @@ public class RangeTest extends TestCase {
 		Range r = new Range(1,4);
 		assertFalse("Input Values: 1 and 4 - Lower 0 and Upper 5. Should return false", r.intersects(0,0));
 	}
-
 	
-											// Test Combine
-	@Test 
-	public void testCombineTwoValidRanges() { 
-		Range r1 = new Range(1, 2);
-	 	Range r2 = new Range(3, 6);
-	 	Range finalrange = new Range(1,6);
-	 	assertEquals("Input values: 1, 2 and 3, 6. Should return 1-6.", finalrange, Range.combine(r1, r2)); 
-	}
-	 
-
 	@Test
-	public void testCombineRangeTwoNull() {
-		Range r1 = new Range(1, 2);
-		Range r2 = null;
-		assertEquals("Input values: 1, 2 and null. Should return error.", null, Range.combine(r1, r2));
+	public void testExpandRangeNullRange () {
+		try {
+			Range r = new Range(1, 4);
+			Range nullRange = r.expand(null, 1,3);
+			fail("No Exception Thrown - should have thrown IllegalArgumentException");
+		} catch (Exception e) {
+			assertTrue("Incorrect Exception Type Thrown", e.getClass().equals(IllegalArgumentException.class));
+		}
 	}
 	
-
 	@Test
-	public void testCombineRangeOneNull() {
-		Range r1 = null;
-		Range r2 = new Range(3,6);
-		assertEquals("Input values: null and 3, 6. Should return error.", r2, Range.combine(r1, r2));
+	public void testExpandValidRangeAndMargins() {
+		Range r = new Range(2, 6);
+		Range expandRange = new Range(1, 8);
+		assertEquals("Range does not equal expected output, should return a range from 1-8", expandRange, r.expand(new Range(2, 6), 0.25, 0.5));
 	}
-
+	
 	@Test
-	public void testCombineBothRangeNull() {
-		Range r1 = null;
-		Range r2 = null;
-		assertEquals("Input values: null and null. Should return error.", null, Range.combine(r1, r2));
+	public void testExpandToIncludeNullRange () {
+		Range r = new Range (1,3);
+		Range expectedRange = new Range(4,4);
+		assertEquals("Range does not equal expected output, should return a range of 2 and 2", expectedRange, r.expandToInclude(null, 4));
 	}
+	
+	@Test
+	public void testExpandToIncludeValueLessThanLowerBound () {
+		Range r = new Range (1,3);
+		Range expectedRange = new Range(0,3);
+		assertEquals("Range does not equal expected output, should return a range of 0 and 3", expectedRange, r.expandToInclude(r, 0));
+	}
+	
+	@Test
+	public void testExpandToIncludeValueMoreThanUpperBound () {
+		Range r = new Range (1,3);
+		Range expectedRange = new Range(1,4);
+		assertEquals("Range does not equal expected output, should return a range of 1 and 4", expectedRange, r.expandToInclude(r, 4));
+	}
+	
+	@Test
+	public void testExpandToIncludeValueWithinBound () {
+		Range r = new Range (1,3);
+		Range expectedRange = new Range(1,3);
+		assertEquals("Range does not equal expected output, should return a range of 1 and 3", expectedRange, r.expandToInclude(r, 2));
+	}
+	
+	@Test
+	public void testShiftwithNoZeroCrossingValueGreaterThan0() {
+		Range r = new Range(1,3);
+		Range expectedRange = new Range(3,5);
+		assertEquals("Range does not equal expected output, should return a range of 1 and 3",expectedRange,r.shift(r, 2, false));
+	}
+	
+	@Test
+	public void testShiftwithNoZeroCrossingValueLessThan0() {
+		Range r = new Range(-1,3);
+		Range expectedRange = new Range(0,5);
+		assertEquals("Range does not equal expected output, should return a range of 0 and 5",expectedRange,r.shift(r, 2, false));
+	}
+	
+	@Test
+	public void testShiftwithNoZeroCrossingValueEquals0() {
+		Range r = new Range(0,0);
+		Range expectedRange = new Range(2,2);
+		assertEquals("Range does not equal expected output, should return a range of 2 and 2",expectedRange,r.shift(r, 2));
+	}
+	
+	@Test
+	public void testShiftAllowZeroCrossing() {
+		Range r = new Range(0,0);
+		Range expectedRange = new Range(2,2);
+		assertEquals("Range does not equal expected output, should return a range of 2 and 2",expectedRange,r.shift(r, 2, true));
+	}
+	
 	
 }
