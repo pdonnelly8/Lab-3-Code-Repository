@@ -308,7 +308,7 @@ public class RangeTest extends TestCase {
 	@Test
 	public void testIntersectsInvalidLowerInvalidUpper() {
 		Range r = new Range(1,4);
-		assertFalse("Input Values: 1 and 4 - Lower 0 and Upper 5. Should return false", r.intersects(0,0));
+		assertFalse("Input Values: 1 and 4 - Lower 0 and Upper 0. Should return false", r.intersects(0,0));
 	}
 	
 	@Test
